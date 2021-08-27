@@ -67,6 +67,8 @@ app.get('/m_keySS', function (req, res) {
   var myText = req.query.m_keySS;
   getWebsitedotproperty(myText)
   getWebsitelivinginsider(myText)
+  getWebsitezmyhome(myText)
+  getWebsitebkkcitismart(myText)
   ccstatus()
   res.redirect('/rscon')
 });
@@ -186,6 +188,126 @@ const Baseurl = encodeURI('https://www.livinginsider.com/searchword/Condo/Buysel
     console.error(error)
   }
 }
+
+const getWebsitezmyhome = async (keyword) => {
+  try {
+
+    const url = encodeURI('https://zmyhome.com/ค้นหา/ขาย/คอนโด/'+keyword+'/0/0/500/1-2-8-10-9/1/0/0/0/2/0/0/0/3/0');
+    const Baseurl = encodeURI('https://zmyhome.com/ค้นหา/ขาย/คอนโด/'+keyword+'/0/0/500/1-2-8-10-9/1/0/0/0/2/0/0/0/3/0');
+    const response = await axios.get(url)
+    const $ = cheerio.load(response.data)
+
+    // New Lists
+    $('#property_unit .property-unit-list-col').map((i, el) => {
+      const count = resultCount++
+      //const title = $(el).find('.property-unit-container').text().replace(/\s\s+/g, ' ');
+      const Link = $(el).find('div.property-unit-container a').attr('href');
+      const image = $(el).find('img').attr('src');
+      const Price = $(el).find('.property-price').text().replace(/\s\s+/g, ' ');
+      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+      let eclink = decodeURI(Link).replace('https://','').replace(/\//gm,' ')
+      //console.log(count, title, image, Price, Link, allData)
+
+      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+
+      let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
+
+      let condoDaTa3 = '<div class="card-body"><p class="card-text">' + eclink + '</p>' + "\n";
+
+      let condoDaTa4 = '<div class="d-flex justify-content-between align-items-center">' + "\n";
+
+      let condoDaTa5 = ' <div class="btn-group">' + "\n";
+
+      let condoDaTa6 = '<a href="' + Link + ' "><button type="button" class="btn btn-sm btn-outline-secondary">Link</button></a>' + "\n";
+
+      let condoDaTa7 = '</div><h3 class="text-muted"> ' + Price + ' </h3></div></div></div></div>';
+
+      let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
+
+      //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
+
+      parsedResults.push(SSDATA.replace(/,/gm, ''))
+    })
+
+    //console.log(parsedResults)
+
+    const nextPageLink = $('.pagination .pagination-custom-lg .justify-content-center').find('.page-item .active').next().find('a').attr('href')
+    console.log(chalk.cyan(`  NextPage: ${nextPageLink}`))
+    pageCounter++
+
+    if (pageCounter === pageLimit || nextPageLink === undefined) {
+      exportResults("zmyhome",parsedResults)
+      return false
+    }
+    let bas = encodeURI(nextPageLink)
+        console.log(bas)
+    getWebsitezmyhome(bas)
+  } catch (error) {
+    exportResults("zmyhome",parsedResults)
+    console.error(error)
+  }
+}
+
+const getWebsitebkkcitismart = async (keyword) => {
+  try {
+
+    const url = encodeURI('https://www.bkkcitismart.com/%E0%B8%8B%E0%B8%B7%E0%B9%89%E0%B8%AD-%E0%B9%80%E0%B8%8A%E0%B9%88%E0%B8%B2?project_code=&project_name=&command=unit_list&pagination=1&tag='+keyword);
+    const Baseurl = encodeURI('https://www.bkkcitismart.com/%E0%B8%8B%E0%B8%B7%E0%B9%89%E0%B8%AD-%E0%B9%80%E0%B8%8A%E0%B9%88%E0%B8%B2?project_code=&project_name=&command=unit_list&pagination=1&tag='+keyword);
+    const response = await axios.get(url)
+    const $ = cheerio.load(response.data)
+
+    // New Lists
+    $('.box-project').map((i, el) => {
+      const count = resultCount++
+      const title = $(el).find('h3').text().replace(/\s\s+/g, ' ');
+      const Link = $(el).find('.box-img').attr('href');
+      const image = $(el).find('.bg-responsive').attr('src');
+      const Price = $(el).find('.price-project').text().split("฿")[1]
+      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+
+      //console.log(count, title, image, Price, Link, allData)
+
+      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+
+      let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
+
+      let condoDaTa3 = '<div class="card-body"><p class="card-text">' + title + '</p>' + "\n";
+
+      let condoDaTa4 = '<div class="d-flex justify-content-between align-items-center">' + "\n";
+
+      let condoDaTa5 = ' <div class="btn-group">' + "\n";
+
+      let condoDaTa6 = '<a href="https://www.bkkcitismart.com/' + Link + ' "><button type="button" class="btn btn-sm btn-outline-secondary">Link</button></a>' + "\n";
+
+      let condoDaTa7 = '</div><h3 class="text-muted"> ' + Price + ' </h3></div></div></div></div>';
+
+      let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
+
+      //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
+
+      parsedResults.push(SSDATA.replace(/,/gm, ''))
+    })
+
+    //console.log(parsedResults)
+
+    const nextPageLink = pageCounter
+    console.log(chalk.cyan(`  NextPage: ${nextPageLink}`))
+    pageCounter++
+
+    if (pageCounter === pageLimit || nextPageLink === undefined) {
+      exportResults("bkkcitismart",parsedResults)
+      return false
+    }
+    console.log(Baseurl + nextPageLink)
+    getWebsitebkkcitismart(Baseurl + nextPageLink)
+  } catch (error) {
+    exportResults("bkkcitismart",parsedResults)
+    console.error(error)
+  }
+}
+
+
+
 
 const exportResults = (site,parsedResults) => {
 
