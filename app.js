@@ -7,12 +7,17 @@ const pug = require('pug');
 const app = express()
 const fs = require('fs');
 const chalk = require('chalk');
+
 const {
   join
 } = require('path');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+
+
+
+
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
@@ -55,18 +60,20 @@ io.on('connection', function (socket) {
 
 
 
-
+const csvResults = [];
 const parsedResults = [];
 const pageLimit = 10;
 let pageCounter = 0;
 let resultCount = 0;
 
-app.get('/m_keySS', function (req, res) {
+app.get('/m_keySS',async function (req, res) {
+  
   var myText = req.query.m_keySS;
-  getWebsitedotproperty(myText)
-  getWebsitelivinginsider(myText)
-  getWebsitezmyhome(myText)
-  getWebsitebkkcitismart(myText)
+  await getWebsitedotproperty(myText)
+  await getWebsitelivinginsider(myText)
+  await getWebsitezmyhome(myText)
+  await getWebsitebkkcitismart(myText)
+  await getWebsitekaidee(myText)
   ccstatus()
   res.redirect('/rscon')
 });
@@ -86,8 +93,17 @@ const getWebsitedotproperty = async (keyword) => {
       const Link = $(el).find('a').attr('href');
       const image = $(el).find('.img-lazy').attr('data-src');
       const Price = $(el).find('.price').text().replace(/\s\s+/gm, ' ');
-      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+      const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
 
+      const csvdata = 
+      {
+        count: count+'_livinginsider',
+        title: title,
+        Link: Link,
+        image: image,
+        Price: Price,
+        allData: allData,
+      };
       //console.log(count, title, image, Price, Link, allData)
 
       let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">dotproperty.co.th</small><div class="card box-shadow">' + "\n";
@@ -107,7 +123,7 @@ const getWebsitedotproperty = async (keyword) => {
       let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
 
       //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
-
+      csvResults.push(csvdata)
       parsedResults.push(SSDATA.replace(/,/gm, ''))
     })
 
@@ -119,12 +135,14 @@ const getWebsitedotproperty = async (keyword) => {
 
     if (pageCounter === pageLimit || nextPageLink === undefined) {
       exportResults("dotproperty",parsedResults)
+      ddd("dotproperty",csvResults)
       return false
     }
     console.log(Baseurl + nextPageLink)
     getWebsitedotproperty(Baseurl + nextPageLink)
   } catch (error) {
     exportResults("dotproperty",parsedResults)
+    ddd("dotproperty",csvResults)
     console.error(error)
   }
 }
@@ -144,9 +162,20 @@ const Baseurl = encodeURI('https://www.livinginsider.com/searchword/Condo/Buysel
       const Link = $(el).find('a').attr('href');
       const image = $(el).find('.img-responsive').attr('src');
       const Price = $(el).find('.listing-cost').text().replace(/\s\s+/g, ' ');
-      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+      const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
 
       //console.log(count, title, image, Price, Link, allData)
+
+      const csvdata = 
+      {
+        count: count+'_livinginsider',
+        title: title,
+        Link: Link,
+        image: image,
+        Price: Price,
+        allData: allData,
+      };
+      
 
       let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">livinginsider.com</small><div class="card box-shadow">' + "\n";
 
@@ -165,7 +194,7 @@ const Baseurl = encodeURI('https://www.livinginsider.com/searchword/Condo/Buysel
       let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
 
       //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
-
+      csvResults.push(csvdata)
       parsedResults.push(SSDATA.replace(/,/gm, ''))
     })
 
@@ -177,12 +206,14 @@ const Baseurl = encodeURI('https://www.livinginsider.com/searchword/Condo/Buysel
 
     if (pageCounter === pageLimit || nextPageLink === undefined) {
       exportResults("livinginsider",parsedResults)
+      ddd("livinginsider",csvResults)
       return false
     }
     console.log(Baseurl + nextPageLink)
     getWebsitelivinginsider(Baseurl + nextPageLink)
   } catch (error) {
     exportResults("livinginsider",parsedResults)
+    ddd("livinginsider",csvResults)
     console.error(error)
   }
 }
@@ -202,9 +233,20 @@ const getWebsitezmyhome = async (keyword) => {
       const Link = $(el).find('div.property-unit-container a').attr('href');
       const image = $(el).find('img').attr('src');
       const Price = $(el).find('.property-price').text().replace(/\s\s+/g, ' ');
-      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+      const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
       let eclink = decodeURI(Link).replace('https://','').replace(/\//gm,' ')
       //console.log(count, title, image, Price, Link, allData)
+
+      const csvdata = 
+      {
+        count: count+'_zmyhome',
+        title: eclink,
+        Link: Link,
+        image: image,
+        Price: Price,
+        allData: allData,
+      };
+      
 
       let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">zmyhome.com</small><div class="card box-shadow">' + "\n";
 
@@ -223,7 +265,7 @@ const getWebsitezmyhome = async (keyword) => {
       let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
 
       //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
-
+      csvResults.push(csvdata)
       parsedResults.push(SSDATA.replace(/,/gm, ''))
     })
 
@@ -235,6 +277,7 @@ const getWebsitezmyhome = async (keyword) => {
 
     if (pageCounter === pageLimit || nextPageLink === undefined) {
       exportResults("zmyhome",parsedResults)
+      ddd("zmyhome",csvResults)
       return false
     }
     let bas = encodeURI(nextPageLink)
@@ -242,6 +285,7 @@ const getWebsitezmyhome = async (keyword) => {
     getWebsitezmyhome(bas)
   } catch (error) {
     exportResults("zmyhome",parsedResults)
+    ddd("zmyhome",csvResults)
     console.error(error)
   }
 }
@@ -261,9 +305,8 @@ const getWebsitebkkcitismart = async (keyword) => {
       const Link = $(el).find('.box-img').attr('href');
       const image = $(el).find('.bg-responsive').attr('src');
       const Price = $(el).find('.price-project').text().split("฿")[1]
-      //const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
+      const allData = $(el).find('.description-block').text().replace(/\s\s+/gm, ' ');
 
-      //console.log(count, title, image, Price, Link, allData)
 
       let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">bkkcitismart.com</small><div class="card box-shadow">' + "\n";
 
@@ -282,8 +325,18 @@ const getWebsitebkkcitismart = async (keyword) => {
       let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
 
       //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
-
+      const csvdata = 
+      {
+        count: count+'_bkkcitismart',
+        title: title,
+        Link: Link,
+        image: image,
+        Price: Price,
+        allData: allData,
+      };
+      csvResults.push(csvdata)
       parsedResults.push(SSDATA.replace(/,/gm, ''))
+
     })
 
     //console.log(parsedResults)
@@ -294,14 +347,95 @@ const getWebsitebkkcitismart = async (keyword) => {
 
     if (pageCounter === pageLimit || nextPageLink === undefined) {
       exportResults("bkkcitismart",parsedResults)
+      ddd("bkkcitismart",csvResults)
       return false
     }
     console.log(Baseurl + nextPageLink)
     getWebsitebkkcitismart(Baseurl + nextPageLink)
   } catch (error) {
     exportResults("bkkcitismart",parsedResults)
+    ddd("bkkcitismart",csvResults)
     console.error(error)
   }
+}
+
+const getWebsitekaidee = async (keyword) => {
+  
+    const superagent = require('superagent');
+    const url = encodeURI('https://baan.kaidee.com/c17p9-realestate-condo/bangkok?price_end=2000000&q='+keyword);
+  
+    // New Lists
+    (async () => {
+      try{
+      const response = await superagent(url);
+      const $ = cheerio.load(response.text);
+      const jsonRaw = $("script[type='application/ld+json']")[1].children[0].data; 
+      const result = JSON.parse(jsonRaw);
+      const itemListElement = result.itemListElement;
+      for(let itemDetill of itemListElement) {
+        const count = resultCount++
+          const Nameitem = itemDetill.mainEntity.name;
+          const urlitem = itemDetill.mainEntity.url;
+          const addressRegion = itemDetill.mainEntity.address.addressRegion;
+          const addressLocality = itemDetill.mainEntity.address.addressLocality;
+          const imageitem = itemDetill.mainEntity.image;
+          const priceSpecifi = itemDetill.mainEntity.offers;
+          const price = priceSpecifi[0]['priceSpecification'].price;
+          
+        
+      let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">bkkcitismart.com</small><div class="card box-shadow">' + "\n";
+
+      let condoDaTa2 = '<img class="card-img-top" src="' + imageitem + '">' + "\n";
+
+      let condoDaTa3 = '<div class="card-body"><p class="card-text">' + Nameitem + '</p>' + "\n";
+
+      let condoDaTa4 = '<div class="d-flex justify-content-between align-items-center">' + "\n";
+
+      let condoDaTa5 = ' <div class="btn-group">' + "\n";
+
+      let condoDaTa6 = '<a href="' + urlitem + ' "><button type="button" class="btn btn-sm btn-outline-secondary">Link</button></a>' + "\n";
+
+      let condoDaTa7 = '</div><h3 class="text-muted"> ' + price + ' </h3></div></div></div></div>';
+
+      let SSDATA = condoDaTa1 + "\n" + condoDaTa2 + "\n" + condoDaTa3 + "\n" + condoDaTa4 + "\n" + condoDaTa5 + "\n" + condoDaTa6 + "\n" + condoDaTa7;
+
+      //console.log(condoDaTa1,condoDaTa2,condoDaTa3,condoDaTa4,condoDaTa5,condoDaTa6,condoDaTa7)
+
+      const csvdata = 
+      {
+        count: count+'_kaidee',
+        title: Nameitem,
+        Link: urlitem,
+        image: imageitem,
+        Price: price,
+        allData: addressRegion+''+addressLocality,
+      };
+      csvResults.push(csvdata)
+      parsedResults.push(SSDATA.replace(/,/gm, ''))
+        
+      }
+      exportResults("kaidee",parsedResults)
+      
+      fs.writeFile("kaidee"+'.json', JSON.stringify(csvResults, null, 4), (err) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log( "Results exported successfully")
+    })
+  } catch (error) {
+    exportResults("kaidee",parsedResults)
+    fs.writeFile("kaidee"+'.json', JSON.stringify(csvResults, null, 4), (err) => {
+      if (err) {
+          console.log(err)
+      }
+      console.log( "Results exported successfully")
+  })
+    console.error(error)
+  }
+       console.log(chalk.yellow.bgBlue(`\n ${chalk.underline.bold(parsedResults.length)} List Results exported successfully`))
+     // console.log(itemListElement[0].mainEntity);
+  })()
+ 
 }
 
 
@@ -314,13 +448,16 @@ const exportResults = (site,parsedResults) => {
       console.log(err);
     else {
       console.log(chalk.yellow.bgBlue(`File written successfully\n${parsedResults.length} รายการ ${site}\n`))
-      sendstatus(parsedResults.length,site)
+      sendstatus()
     }
   });
+
+
+
 }
 
-function sendstatus(length,site) {
-  fs.writeFile("views/rscon.pug", `<center>File written successfully\n${length} รายการ ${site}\n<a href="/condo"><br/><button type="submit">ดูคอนโด</button><a></center>`, (err) => {
+function sendstatus() {
+  fs.writeFile("views/rscon.pug", `<center>successfully\n\n<a href="/condo"><br/><button type="submit">ดูคอนโด</button><a></center>`, (err) => {
     if (err)
       console.log(err);
     else {
@@ -339,6 +476,18 @@ function ccstatus() {
     }
   })
 }
+
+
+function ddd(name,csvResults){
+    // Example Node.js program to append data to file
+fs.writeFile(name+'.json', JSON.stringify(csvResults, null, 4), (err) => {
+      if (err) {
+          console.log(err)
+      }
+      console.log( "Results exported successfully")
+  })
+}
+
 
 //   task.start();
 app.listen(8080, () => {
