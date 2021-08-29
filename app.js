@@ -10,9 +10,7 @@ const chalk = require('chalk');
 const {
   join
 } = require('path');
-var livereload = require("livereload");
-var connectLiveReload = require("connect-livereload");
-var cron = require('node-cron');
+
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
@@ -92,7 +90,7 @@ const getWebsitedotproperty = async (keyword) => {
 
       //console.log(count, title, image, Price, Link, allData)
 
-      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+      let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">dotproperty.co.th</small><div class="card box-shadow">' + "\n";
 
       let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
 
@@ -150,7 +148,7 @@ const Baseurl = encodeURI('https://www.livinginsider.com/searchword/Condo/Buysel
 
       //console.log(count, title, image, Price, Link, allData)
 
-      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+      let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">livinginsider.com</small><div class="card box-shadow">' + "\n";
 
       let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
 
@@ -208,7 +206,7 @@ const getWebsitezmyhome = async (keyword) => {
       let eclink = decodeURI(Link).replace('https://','').replace(/\//gm,' ')
       //console.log(count, title, image, Price, Link, allData)
 
-      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+      let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">zmyhome.com</small><div class="card box-shadow">' + "\n";
 
       let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
 
@@ -267,7 +265,7 @@ const getWebsitebkkcitismart = async (keyword) => {
 
       //console.log(count, title, image, Price, Link, allData)
 
-      let condoDaTa1 = '<div class="col-md-4 p-3"><div class="card box-shadow">' + "\n";
+      let condoDaTa1 = '<div class="col-md-4 p-3"><small class="text-muted">bkkcitismart.com</small><div class="card box-shadow">' + "\n";
 
       let condoDaTa2 = '<img class="card-img-top" src="' + image + '">' + "\n";
 
@@ -322,7 +320,7 @@ const exportResults = (site,parsedResults) => {
 }
 
 function sendstatus(length,site) {
-  fs.writeFile("views/rscon.pug", `File written successfully\n${length} รายการ ${site}\n<a href="/condo"><button type="submit">ดูคอนโด</button><a>`, (err) => {
+  fs.writeFile("views/rscon.pug", `<center>File written successfully\n${length} รายการ ${site}\n<a href="/condo"><br/><button type="submit">ดูคอนโด</button><a></center>`, (err) => {
     if (err)
       console.log(err);
     else {
